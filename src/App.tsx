@@ -19,7 +19,7 @@ async function invertImage(imageURL: string) {
       // @ts-ignore
       let ctx = canvas.getContext("2d");
       // @ts-ignore
-      ctx.filter = "invert(1)";
+      ctx.filter = "invert(1) hue-rotate(90grad)";
       // @ts-ignore
       canvas.width = img.width;
       // @ts-ignore
@@ -29,7 +29,8 @@ async function invertImage(imageURL: string) {
       // @ts-ignore
       if (typeof ctx.filter !== "undefined") {
         // @ts-ignore
-        ctx.filter = "invert(1)";
+        ctx.filter = "invert(1) hue-rotate(180grad) contrast(160%)";
+        // ctx.imageRendering = "pixelated";
         // @ts-ignore
         ctx.drawImage(img, 0, 0);
         console.log("Hit if");
@@ -38,15 +39,17 @@ async function invertImage(imageURL: string) {
         // @ts-ignore
         ctx.drawImage(img, 0, 0);
         // @ts-ignore
-        ctx.filter = "invert(1)";
+        ctx.filter = "invert(1) hue-rotate(180grad)";
         console.log("Made it here");
       }
 
       // @ts-ignore
-      resolve(canvas.toDataURL());
+      resolve(canvas.toDataURL(0.8));
     }
   })
 }
+
+
 async function invertPdfPages(pdfDocument): Promise<Array<string>> {
   let imageArray = [];
   const rotate = 0;
@@ -59,14 +62,12 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
     // Because this page's rotation option overwrites pdf default rotation value,
     // calculating page rotation option value from pdf default and this component prop rotate.
     const rotation = rotate === 0 ? page.rotate : page.rotate + rotate;
+    console.log("rotation is " +rotation);
     const dpRatio = window.devicePixelRatio;
     const adjustedScale = scale * dpRatio;
     const viewport = page.getViewport({ scale: adjustedScale, rotation });
 
     const canvasContext = canvasEl.getContext('2d');
-    // if (!canvasContext) {
-    //   continue;
-    // }
 
     canvasEl.style.width = `${viewport.width / dpRatio}px`;
     canvasEl.style.height = `${viewport.height / dpRatio}px`;
@@ -97,11 +98,16 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
 }
 
 function imagesToPDF(imageArray: Array<string>) {
-  let doc = new jsPDF('p', 'mm'); // TODO CHANGE ORIENTATION BASED ON IMAGE SIZES
+  let doc = new jsPDF('l', 'mm'); // TODO CHANGE ORIENTATION BASED ON IMAGE SIZES
+
+
+
   console.log("The page SIZES ARE!!!!!!!!!" + doc.internal.pageSize.getHeight() + "AND" + doc.internal.pageSize.getWidth());
 
   for (let i = 0; i < imageArray.length; i++) {
-    doc.addPage();
+    if (i != imageArray.length - 1) doc.addPage();
+
+
     doc.setPage(i+1);
     const imgData = imageArray[i];
 
@@ -113,7 +119,7 @@ function imagesToPDF(imageArray: Array<string>) {
     // @ts-ignore
     doc.addImage(imgData, 0, 0, width, height);
   }
-  doc.save("FinalVersion!.pdf");
+  doc.save("Darkened!.pdf");
 }
 
 function App() {
@@ -122,75 +128,11 @@ function App() {
   const [dataUrl, setDataUrl] = useState('');
 
   const { pdfDocument, pdfPage } = usePdf({
-    file: 'http://localhost:3000/A2_handout.pdf',
+    // file: 'http://localhost:3000/A2_handout.pdf',
+    file: 'http://localhost:3000/week06-notes.pdf',
     page,
     canvasRef,
   });
-
-
-  async function getPDFURL() {
-    const originalDataURL = await canvasRef.current!.toDataURL();
-    return originalDataURL;
-  }
-
-  function addInvertedImagetoArray(dataBlob: string) {
-
-  }
-
-
-  // --------- Below this point is trials ---------
-  function invertImage(dataURL: string) {
-    return dataURL;
-  }
-
-  function saveInverted(imageURL: string) {
-    console.log("Began saving inverted...");
-    let img = new Image();
-    img.crossOrigin = "";
-    console.log("Drawing func...");
-    img.onload = draw;
-    img.src = imageURL;
-    console.log("Before Draw...", imageURL);
-
-    function draw() {
-      console.log("Began draw");
-      let canvas = document.querySelector("#dark-canvas");
-      // @ts-ignore
-      let ctx = canvas.getContext("2d");
-      // @ts-ignore
-      ctx.filter = "invert(1)";
-      ctx.filter = "contrast(1.25)";
-      // @ts-ignore
-      canvas.width = img.width;
-      // @ts-ignore
-      canvas.height = img.height;
-
-      // filter
-      // @ts-ignore
-      if (typeof ctx.filter !== "undefined") {
-        // @ts-ignore
-        ctx.filter = "invert(1)";
-        // @ts-ignore
-        ctx.drawImage(img, 0, 0);
-        console.log("Hit if");
-      }
-      else {
-        console.log("Hit else");
-        // @ts-ignore
-        ctx.drawImage(img, 0, 0);
-        // @ts-ignore
-        ctx.filter = "invert(1)";
-        console.log("Made it here");
-      }
-
-      // @ts-ignore
-      // document.querySelector("img").src = canvas.toDataURL();
-
-      // @ts-ignore
-      // let image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
-      // window.location.href=image; // it will save locally
-    }
-  }
 
   return (
       <div>
@@ -208,21 +150,6 @@ function App() {
               <button onClick={async () => {
                 const imageArray = await invertPdfPages(pdfDocument);
                 imagesToPDF(imageArray);
-                // let imageArray = [];
-                // const darkCanvas = document.querySelector("#dark-canvas");
-                // getPDFURL().then(setDataUrl);
-                //
-                // for (let i = 1; i <= pdfDocument.numPages; i++) {
-                //   setPage(i);
-                //   getPDFURL().then(saveInverted);
-                //   // @ts-ignore
-                //   let image = darkCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
-                //
-                //   // @ts-ignore
-                //   imageArray.push(image);
-                // }
-                // console.log("printing elements");
-                // console.log(imageArray);
               }}>
                 Get image
               </button>
