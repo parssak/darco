@@ -3,18 +3,15 @@ import './App.css';
 import { usePdf } from '@mikecousins/react-pdf';
 import { jsPDF } from 'jspdf';
 
+
 async function invertImage(imageURL: string) {
   return new Promise((resolve, reject) => {
-    console.log("Began saving inverted...");
     let img = new Image();
     img.crossOrigin = "";
-    console.log("Drawing func...");
     img.onload = draw;
     img.src = imageURL;
-    console.log("Before Draw...", imageURL);
 
     function draw() {
-      console.log("Began draw");
       let canvas = document.querySelector("#dark-canvas");
       // @ts-ignore
       let ctx = canvas.getContext("2d");
@@ -33,16 +30,12 @@ async function invertImage(imageURL: string) {
         // ctx.imageRendering = "pixelated";
         // @ts-ignore
         ctx.drawImage(img, 0, 0);
-        console.log("Hit if");
       } else {
-        console.log("Hit else");
         // @ts-ignore
         ctx.drawImage(img, 0, 0);
         // @ts-ignore
-        ctx.filter = "invert(1) hue-rotate(180grad)";
-        console.log("Made it here");
+        ctx.filter = "invert(1) hue-rotate(180grad) contrast(160%)";
       }
-
       // @ts-ignore
       resolve(canvas.toDataURL(0.8));
     }
@@ -59,8 +52,6 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
     const canvasEl = document.createElement('canvas');
     const page = await pdfDocument.getPage(i);
 
-    // Because this page's rotation option overwrites pdf default rotation value,
-    // calculating page rotation option value from pdf default and this component prop rotate.
     const rotation = rotate === 0 ? page.rotate : page.rotate + rotate;
     console.log("rotation is " +rotation);
     const dpRatio = window.devicePixelRatio;
@@ -88,8 +79,6 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
     // @ts-ignore
     darkImage.src = invertedURL;
 
-
-    document.body.appendChild(darkImage);
     // @ts-ignore
     imageArray.push(invertedURL);
   }
@@ -97,16 +86,12 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
   return imageArray;
 }
 
-function imagesToPDF(imageArray: Array<string>) {
-  let doc = new jsPDF('l', 'mm'); // TODO CHANGE ORIENTATION BASED ON IMAGE SIZES
-
-
-
-  console.log("The page SIZES ARE!!!!!!!!!" + doc.internal.pageSize.getHeight() + "AND" + doc.internal.pageSize.getWidth());
+function imagesToPDF(imageArray: Array<string>, orientation: String) {
+  // @ts-ignore
+  let doc = new jsPDF(orientation, 'mm');
 
   for (let i = 0; i < imageArray.length; i++) {
     if (i != imageArray.length - 1) doc.addPage();
-
 
     doc.setPage(i+1);
     const imgData = imageArray[i];
@@ -119,7 +104,14 @@ function imagesToPDF(imageArray: Array<string>) {
     // @ts-ignore
     doc.addImage(imgData, 0, 0, width, height);
   }
-  doc.save("Darkened!.pdf");
+  doc.save("DarkVersion.pdf");
+}
+
+// file: 'http://localhost:3000/A2_handout.pdf',
+
+
+function PdfPreview(props) {
+  return <div>PDF: {props.file.name}</div>
 }
 
 function App() {
@@ -127,47 +119,56 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [dataUrl, setDataUrl] = useState('');
 
-  const { pdfDocument, pdfPage } = usePdf({
-    // file: 'http://localhost:3000/A2_handout.pdf',
+  let pdfFileURL = useRef('');
+
+  let { pdfDocument, pdfPage } = usePdf({
     file: 'http://localhost:3000/week06-notes.pdf',
     page,
     canvasRef,
   });
 
+  const [file, setFile] = useState(null);
+
   return (
       <div>
-        {!pdfDocument && <span>Loading...</span>}
-        {pdfDocument && pdfDocument.numPages && <nav>
-              <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-                Previous
-              </button>
-              <button
-                  disabled={page === pdfDocument.numPages}
-                  onClick={() => setPage(page + 1)}
-              >
-                Next
-              </button>
-              <button onClick={async () => {
-                const imageArray = await invertPdfPages(pdfDocument);
-                imagesToPDF(imageArray);
-              }}>
-                Get image
-              </button>
+        <input type="file"
+               onChange={(evt) => {
+                 const files = evt.target.files;
 
-            </nav>}
-        <div>
-          <h1>Mike's canvas</h1>
-          <canvas ref={canvasRef} />
-        </div>
-        <div>
-          <h1>Parssa's canvas</h1>
-          <canvas id="dark-canvas" />
-        </div>
-        <h1>Debug img</h1>
-        {
-          dataUrl && (
-            <img src={dataUrl}/>)
-        }
+                 // @ts-ignore
+                 if (files.length) {
+                  // Picked a file.
+                   // @ts-ignore
+                   setFile(files[0]);
+                 }
+               }}
+               accept="application/pdf"
+        />
+        {file ? <PdfPreview file={file} /> : null}
+
+        {/*{!pdfDocument &&<span>Loading...</span>}*/}
+        {/*{pdfDocument && pdfDocument.numPages && document.getElementById("inputpdf") !== null && <nav>*/}
+
+        {/*  <button onClick={async () => {*/}
+        {/*    const imageArray = await invertPdfPages(pdfDocument);*/}
+        {/*    imagesToPDF(imageArray, 'p');*/}
+        {/*  }}>*/}
+        {/*    INVERT PORTRAIT*/}
+        {/*  </button>*/}
+
+        {/*  <button onClick={async () => {*/}
+        {/*    const imageArray = await invertPdfPages(pdfDocument);*/}
+        {/*    imagesToPDF(imageArray, 'l');*/}
+        {/*  }}>*/}
+        {/*    INVERT LANDSCAPE*/}
+        {/*  </button>*/}
+        {/*</nav>}*/}
+        {/*<div>*/}
+        {/*  <canvas ref={canvasRef} />*/}
+        {/*</div>*/}
+        {/*<div>*/}
+        {/*  <canvas id="dark-canvas" />*/}
+        {/*</div>*/}
       </div>
   );
 }
