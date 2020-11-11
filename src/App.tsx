@@ -3,6 +3,7 @@ import './App.css';
 import { usePdf } from '@mikecousins/react-pdf';
 import { jsPDF } from 'jspdf';
 
+let pdfName = "";
 
 async function invertImage(imageURL: string) {
   return new Promise((resolve, reject) => {
@@ -99,12 +100,14 @@ function imagesToPDF(imageArray: Array<string>, orientation: String) {
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
 
-    doc.setFillColor('#000000');
+    doc.setFillColor('#3f3f3f');
     doc.rect(0, 0, width, height);
     // @ts-ignore
     doc.addImage(imgData, 0, 0, width, height);
   }
-  doc.save("DarkVersion.pdf");
+
+  let documentName = pdfName.concat("dark");
+  doc.save(documentName.concat(".pdf"));
 }
 
 function getDataUrlFromFile(file) {
@@ -126,6 +129,7 @@ function PdfPreview(props) {
     file: props.dataUrl,
     page,
     canvasRef,
+    // workerSrc: "../../build/webpack/pdf.worker.bundle.js"
   });
 
   return (
@@ -169,6 +173,9 @@ function App() {
                  // @ts-ignore
                  if (files.length) {
                    // Picked a file.
+                   // @ts-ignore
+                   pdfName = files[0].name.substring(0, files[0].name.lastIndexOf('.'))
+
                    // @ts-ignore
                    const newDataUrl = await getDataUrlFromFile(files[0]);
                    // @ts-ignore
