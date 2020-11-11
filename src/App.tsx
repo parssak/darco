@@ -107,8 +107,6 @@ function imagesToPDF(imageArray: Array<string>, orientation: String) {
   doc.save("DarkVersion.pdf");
 }
 
-// file: 'http://localhost:3000/A2_handout.pdf',
-
 function getDataUrlFromFile(file) {
   return new Promise(resolve => {
     const reader = new FileReader();
@@ -135,7 +133,6 @@ function PdfPreview(props) {
         {!pdfDocument &&<span>Loading...</span>}
         {
           pdfDocument && pdfDocument.numPages && <nav>
-
             <button onClick={async () => {
               const imageArray = await invertPdfPages(pdfDocument);
               imagesToPDF(imageArray, 'p');
@@ -184,5 +181,4 @@ function App() {
       </div>
   );
 }
-
 export default App;
