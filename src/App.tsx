@@ -134,7 +134,9 @@ function PdfPreview(props) {
 
   return (
       <div>
-        {!pdfDocument &&<span>Loading...</span>}
+        {/*{!pdfDocument &&<span>Loading...</span>}*/}
+        {!pdfDocument ? <span>Preparing...</span> : <span>Ready to invert!</span>}
+        {/*{!inverted ? <span>Hi</span> : <span>Hello</span>}*/}
         {
           pdfDocument && pdfDocument.numPages && <nav>
             <button id="invertV" onClick={async () => {
@@ -165,8 +167,13 @@ function PdfPreview(props) {
 function App() {
   const [dataUrl, setDataUrl] = useState(null);
   return (
+
       <div>
-        {dataUrl ? null : <span> Please select a PDF </span>}
+        <div className={"heading"}>
+          <h2>Welcome to</h2>
+          <h1>Darco</h1>
+        </div>
+        {dataUrl ? null : <span id={"prompt"}> Please select a PDF </span>}
         {dataUrl ? null : <label htmlFor="file-upload" className="custom-file-upload">
           <i className="fa fa-cloud-upload"></i> Select PDF...
         </label>}
