@@ -14,7 +14,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #0067ff;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -36,3 +36,113 @@
     transform: rotate(360deg);
   }
 }
+
+body {
+  background-color: #151127;
+  color: white;
+  padding: 40px;
+  text-align: center;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+span {
+  color: white;
+  height: 250px;
+  width: 250px;
+  background-color: #211d36;
+  position: fixed;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Helvetica Neue";
+  font-weight: bolder;
+  cursor: pointer;
+  z-index: 999;
+  border-radius: 150px;
+}
+
+.custom-file-upload {
+  color: white;
+  height: 50px;
+  width: 250px;
+  background-color: #76698d;
+  position: fixed;
+  margin: auto;
+  bottom: 25px;
+  left: 0;
+  right: 0;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Helvetica Neue";
+  font-weight: bolder;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px #343232;
+  z-index: 999;
+}
+
+#invertV {
+  color: white;
+  height: 50px;
+  width: 250px;
+  background-color: #76698d;
+  position: fixed;
+  margin: auto;
+  bottom: 25px;
+  left: 0;
+  right: 280px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Helvetica Neue";
+  font-weight: bolder;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 0;
+  border: none;
+  box-shadow: 0px 0px 10px #343232;
+  z-index: 999;
+}
+
+#invertH {
+  color: white;
+  height: 50px;
+  width: 250px;
+  background-color: #76698d;
+  position: fixed;
+  margin: auto;
+  bottom: 25px;
+  left: 280px;
+  right: 0;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Helvetica Neue";
+  font-weight: bolder;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 0;
+  border: none;
+  box-shadow: 0px 0px 10px #343232;
+  z-index: 999;
+}
+
+/*.custom-file-upload {*/
+/*  border: 2px solid #ccc;*/
+/*  display: inline-block;*/
+/*  padding: 10px 20px;*/
+/*  cursor: pointer;*/
+/*}*/

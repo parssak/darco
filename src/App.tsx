@@ -100,7 +100,7 @@ function imagesToPDF(imageArray: Array<string>, orientation: String) {
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
 
-    doc.setFillColor('#3f3f3f');
+    doc.setFillColor('#000000');
     doc.rect(0, 0, width, height);
     // @ts-ignore
     doc.addImage(imgData, 0, 0, width, height);
@@ -137,18 +137,18 @@ function PdfPreview(props) {
         {!pdfDocument &&<span>Loading...</span>}
         {
           pdfDocument && pdfDocument.numPages && <nav>
-            <button onClick={async () => {
+            <button id="invertV" onClick={async () => {
               const imageArray = await invertPdfPages(pdfDocument);
               imagesToPDF(imageArray, 'p');
             }}>
-              INVERT PORTRAIT
+              Invert Portrait
             </button>
 
-            <button onClick={async () => {
+            <button id="invertH"onClick={async () => {
               const imageArray = await invertPdfPages(pdfDocument);
               imagesToPDF(imageArray, 'l');
             }}>
-              INVERT LANDSCAPE
+              Invert Landscape
             </button>
           </nav>
         }
@@ -166,7 +166,11 @@ function App() {
   const [dataUrl, setDataUrl] = useState(null);
   return (
       <div>
-        <input type="file"
+        {dataUrl ? null : <span> Please select a PDF </span>}
+        {dataUrl ? null : <label htmlFor="file-upload" className="custom-file-upload">
+          <i className="fa fa-cloud-upload"></i> Select PDF...
+        </label>}
+        <input id="file-upload"type="file"
                onChange={async (evt) => {
                  const files = evt.target.files;
 
