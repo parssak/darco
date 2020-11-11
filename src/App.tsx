@@ -109,22 +109,6 @@ function imagesToPDF(imageArray: Array<string>, orientation: String) {
 
 // file: 'http://localhost:3000/A2_handout.pdf',
 
-// function PDFPrepare(props) {
-//   const [dataURL, setDataURL] = useState(null);
-//
-//   let reader = new FileReader()
-//   reader.addEventListener("load", function () {
-//     console.log("Event listener call executed");
-//
-//   }, false)
-//
-//   if (props.file) {
-//     reader.readAsDataURL(props.file);
-//   }
-//
-// }
-
-
 function getDataUrlFromFile(file) {
   return new Promise(resolve => {
     const reader = new FileReader();
@@ -140,7 +124,7 @@ function PdfPreview(props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [dataUrl, setDataUrl] = useState('');
 
-  let { pdfDocument, pdfPage } = usePdf({ // THIS
+  let { pdfDocument, pdfPage } = usePdf({
     file: props.dataUrl,
     page,
     canvasRef,
@@ -149,22 +133,24 @@ function PdfPreview(props) {
   return (
       <div>
         {!pdfDocument &&<span>Loading...</span>}
-        {pdfDocument && pdfDocument.numPages && <nav>
+        {
+          pdfDocument && pdfDocument.numPages && <nav>
 
-          <button onClick={async () => {
-            const imageArray = await invertPdfPages(pdfDocument);
-            imagesToPDF(imageArray, 'p');
-          }}>
-            INVERT PORTRAIT
-          </button>
+            <button onClick={async () => {
+              const imageArray = await invertPdfPages(pdfDocument);
+              imagesToPDF(imageArray, 'p');
+            }}>
+              INVERT PORTRAIT
+            </button>
 
-          <button onClick={async () => {
-            const imageArray = await invertPdfPages(pdfDocument);
-            imagesToPDF(imageArray, 'l');
-          }}>
-            INVERT LANDSCAPE
-          </button>
-        </nav>}
+            <button onClick={async () => {
+              const imageArray = await invertPdfPages(pdfDocument);
+              imagesToPDF(imageArray, 'l');
+            }}>
+              INVERT LANDSCAPE
+            </button>
+          </nav>
+        }
         <div>
           <canvas ref={canvasRef} />
         </div>
