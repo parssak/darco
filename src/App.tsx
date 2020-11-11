@@ -91,7 +91,7 @@ function imagesToPDF(imageArray: Array<string>, orientation: String) {
   let doc = new jsPDF(orientation, 'mm');
 
   for (let i = 0; i < imageArray.length; i++) {
-    if (i != imageArray.length - 1) doc.addPage();
+    if (i !== imageArray.length - 1) doc.addPage();
 
     doc.setPage(i+1);
     const imgData = imageArray[i];
@@ -109,66 +109,92 @@ function imagesToPDF(imageArray: Array<string>, orientation: String) {
 
 // file: 'http://localhost:3000/A2_handout.pdf',
 
+// function PDFPrepare(props) {
+//   const [dataURL, setDataURL] = useState(null);
+//
+//   let reader = new FileReader()
+//   reader.addEventListener("load", function () {
+//     console.log("Event listener call executed");
+//
+//   }, false)
+//
+//   if (props.file) {
+//     reader.readAsDataURL(props.file);
+//   }
+//
+// }
 
-function PdfPreview(props) {
-  return <div>PDF: {props.file.name}</div>
+
+function getDataUrlFromFile(file) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.addEventListener('load', function () {
+      resolve(reader.result);
+    }, false);
+    reader.readAsDataURL(file);
+  });
 }
 
-function App() {
+function PdfPreview(props) {
   const [page, setPage] = useState(1);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [dataUrl, setDataUrl] = useState('');
 
-  let pdfFileURL = useRef('');
-
-  let { pdfDocument, pdfPage } = usePdf({
-    file: 'http://localhost:3000/week06-notes.pdf',
+  let { pdfDocument, pdfPage } = usePdf({ // THIS
+    file: props.dataUrl,
     page,
     canvasRef,
   });
 
-  const [file, setFile] = useState(null);
+  return (
+      <div>
+        {!pdfDocument &&<span>Loading...</span>}
+        {pdfDocument && pdfDocument.numPages && <nav>
 
+          <button onClick={async () => {
+            const imageArray = await invertPdfPages(pdfDocument);
+            imagesToPDF(imageArray, 'p');
+          }}>
+            INVERT PORTRAIT
+          </button>
+
+          <button onClick={async () => {
+            const imageArray = await invertPdfPages(pdfDocument);
+            imagesToPDF(imageArray, 'l');
+          }}>
+            INVERT LANDSCAPE
+          </button>
+        </nav>}
+        <div>
+          <canvas ref={canvasRef} />
+        </div>
+        <div>
+          <canvas id="dark-canvas" />
+        </div>
+      </div>
+  );
+}
+
+function App() {
+  const [dataUrl, setDataUrl] = useState(null);
   return (
       <div>
         <input type="file"
-               onChange={(evt) => {
+               onChange={async (evt) => {
                  const files = evt.target.files;
 
                  // @ts-ignore
                  if (files.length) {
-                  // Picked a file.
+                   // Picked a file.
                    // @ts-ignore
-                   setFile(files[0]);
+                   const newDataUrl = await getDataUrlFromFile(files[0]);
+                   // @ts-ignore
+                   setDataUrl(newDataUrl);
                  }
                }}
                accept="application/pdf"
         />
-        {file ? <PdfPreview file={file} /> : null}
-
-        {/*{!pdfDocument &&<span>Loading...</span>}*/}
-        {/*{pdfDocument && pdfDocument.numPages && document.getElementById("inputpdf") !== null && <nav>*/}
-
-        {/*  <button onClick={async () => {*/}
-        {/*    const imageArray = await invertPdfPages(pdfDocument);*/}
-        {/*    imagesToPDF(imageArray, 'p');*/}
-        {/*  }}>*/}
-        {/*    INVERT PORTRAIT*/}
-        {/*  </button>*/}
-
-        {/*  <button onClick={async () => {*/}
-        {/*    const imageArray = await invertPdfPages(pdfDocument);*/}
-        {/*    imagesToPDF(imageArray, 'l');*/}
-        {/*  }}>*/}
-        {/*    INVERT LANDSCAPE*/}
-        {/*  </button>*/}
-        {/*</nav>}*/}
-        {/*<div>*/}
-        {/*  <canvas ref={canvasRef} />*/}
-        {/*</div>*/}
-        {/*<div>*/}
-        {/*  <canvas id="dark-canvas" />*/}
-        {/*</div>*/}
+        {dataUrl ? <PdfPreview dataUrl={dataUrl}/> : null}
       </div>
   );
 }
