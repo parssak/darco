@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import './App.css';
 import { usePdf } from '@mikecousins/react-pdf';
 import { jsPDF } from 'jspdf';
-import RgbQuant from 'rgbquant';
 
 let pdfName = "";
 
