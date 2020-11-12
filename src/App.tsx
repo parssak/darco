@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import './App.css';
 import { usePdf } from '@mikecousins/react-pdf';
 import { jsPDF } from 'jspdf';
+import RgbQuant from 'rgbquant';
 
 let pdfName = "";
 
@@ -37,8 +38,9 @@ async function invertImage(imageURL: string) {
         // @ts-ignore
         ctx.filter = "invert(1) hue-rotate(150grad)";
       }
+
       // @ts-ignore
-      resolve(canvas.toDataURL(0.8));
+      resolve(canvas.toDataURL('image/jpeg', 0.8));
     }
   })
 }
