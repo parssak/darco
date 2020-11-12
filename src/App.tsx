@@ -123,42 +123,46 @@ function getDataUrlFromFile(file) {
 function PdfPreview(props) {
   const [page, setPage] = useState(1);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [dataUrl, setDataUrl] = useState('');
 
   let { pdfDocument, pdfPage } = usePdf({
     file: props.dataUrl,
     page,
     canvasRef,
-    // workerSrc: "../../build/webpack/pdf.worker.bundle.js"
+    workerSrc: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.2.228/pdf.worker.js"
   });
+
 
   return (
       <div>
         {/*{!pdfDocument &&<span>Loading...</span>}*/}
-        {!pdfDocument ? <span>Preparing...</span> : <span>Ready to invert!</span>}
-        {/*{!inverted ? <span>Hi</span> : <span>Hello</span>}*/}
+        {!pdfDocument ? <span>Preparing...</span> : <button className={"custom-file-upload"}
+                                                          onClick={async () => {
+          const imageArray = await invertPdfPages(pdfDocument);
+          imagesToPDF(imageArray, 'p');
+        }}>Ready to invert!</button>}
+
         {
           pdfDocument && pdfDocument.numPages && <nav>
-            <button id="invertV" onClick={async () => {
-              const imageArray = await invertPdfPages(pdfDocument);
-              imagesToPDF(imageArray, 'p');
-            }}>
-              Invert Portrait
-            </button>
+            {/*<button id="invertV" onClick={async () => {*/}
+            {/*  const imageArray = await invertPdfPages(pdfDocument);*/}
+            {/*  imagesToPDF(imageArray, 'p');*/}
+            {/*}}>*/}
+            {/*  Invert Portrait*/}
+            {/*</button>*/}
 
-            <button id="invertH"onClick={async () => {
-              const imageArray = await invertPdfPages(pdfDocument);
-              imagesToPDF(imageArray, 'l');
-            }}>
-              Invert Landscape
-            </button>
+            {/*<button id="invertH"onClick={async () => {*/}
+            {/*  const imageArray = await invertPdfPages(pdfDocument);*/}
+            {/*  imagesToPDF(imageArray, 'l');*/}
+            {/*}}>*/}
+            {/*  Invert Landscape*/}
+            {/*</button>*/}
           </nav>
         }
         <div>
           <canvas ref={canvasRef} />
         </div>
         <div>
-          <canvas id="dark-canvas" />
+          <canvas id="dark-canvas"/>
         </div>
       </div>
   );
@@ -171,9 +175,26 @@ function App() {
       <div>
         <div className={"heading"}>
           <h2>Welcome to</h2>
-          <h1>Darco</h1>
+          <h1>Darco.</h1>
         </div>
-        {dataUrl ? null : <span id={"prompt"}> Please select a PDF </span>}
+        {dataUrl ? null : <input id="prompt"type="file"
+                                 onChange={async (evt) => {
+                                   const files = evt.target.files;
+
+                                   // @ts-ignore
+                                   if (files.length) {
+                                     // Picked a file.
+                                     // @ts-ignore
+                                     pdfName = files[0].name.substring(0, files[0].name.lastIndexOf('.'))
+
+                                     // @ts-ignore
+                                     const newDataUrl = await getDataUrlFromFile(files[0]);
+                                     // @ts-ignore
+                                     setDataUrl(newDataUrl);
+                                   }
+                                 }}
+                                 accept="application/pdf"
+        />}
         {dataUrl ? null : <label htmlFor="file-upload" className="custom-file-upload">
           <i className="fa fa-cloud-upload"></i> Select PDF...
         </label>}

@@ -38,7 +38,7 @@
 }
 
 body {
-  background-color: #151127;
+  background-color: #09051a;
   color: white;
   padding: 40px;
   text-align: center;
@@ -48,29 +48,38 @@ input[type="file"] {
   display: none;
 }
 
-span {
+/*span {*/
+/*  color: white;*/
+/*  height: 250px;*/
+/*  width: 250px;*/
+/*  background-color: #211d36;*/
+/*  position: fixed;*/
+/*  margin: auto;*/
+/*  top: 0;*/
+/*  bottom: 0;*/
+/*  left: 0;*/
+/*  right: 0;*/
+/*  font-size: 20px;*/
+/*  display: flex;*/
+/*  justify-content: center;*/
+/*  align-items: center;*/
+/*  font-family: "Helvetica Neue";*/
+/*  font-weight: bolder;*/
+/*  cursor: pointer;*/
+/*  z-index: 999;*/
+/*  border-radius: 150px;*/
+/*}*/
+
+#prompt:hover {
+  height: 350px;
+  width: 350px;
   color: white;
-  height: 250px;
-  width: 250px;
-  background-color: #211d36;
-  position: fixed;
-  margin: auto;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: "Helvetica Neue";
+  background-color: #4247af;
   font-weight: bolder;
-  cursor: pointer;
-  z-index: 999;
-  border-radius: 150px;
+  font-size: 24px;
 }
 
-#prompt {
+#loadingprompt {
   color: #908da1;
   height: 250px;
   width: 250px;
@@ -91,15 +100,15 @@ span {
   z-index: 999;
   border-radius: 150px;
 }
-
-.custom-file-upload {
+/*background-color: #27ac5d;*/
+#successprompt {
   color: white;
-  height: 50px;
-  width: 250px;
-  background-color: #76698d;
+  height: 150px;
+  width: 300px;
+  /*background-image: linear-gradient(#5156ea, #76698d);*/
   position: fixed;
   margin: auto;
-  bottom: 25px;
+  bottom: 50px;
   left: 0;
   right: 0;
   font-size: 20px;
@@ -109,11 +118,31 @@ span {
   font-family: "Helvetica Neue";
   font-weight: bolder;
   cursor: pointer;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px #343232;
+  border-radius: 250px;
+  box-shadow: 0px 0px 15px #040404;
   z-index: 999;
-  transition: all 0.2s;
+  transition: 0.15s;
+  border-width: 0;
 }
+
+#invertH:hover{
+  color: #ffffff;
+  background-image: none;
+  background-color: #5156ea;
+  width: 280px;
+  height: 70px;
+  font-size: 24px;
+}
+
+
+#invertV:hover{
+  color: #ffffff;
+  background-color: #5156ea;
+  width: 280px;
+  height: 70px;
+  font-size: 24px;
+}
+
 
 #invertV {
   color: white;
@@ -135,9 +164,47 @@ span {
   border-radius: 10px;
   padding: 0;
   border: none;
-  box-shadow: 0px 0px 10px #343232;
+  box-shadow: 0px 0px 25px #040404;
   z-index: 999;
   transition: all 0.2s;
+}
+.custom-file-upload {
+  color: white;
+  height: 100px;
+  width: 300px;
+  background-image: linear-gradient(#5156ea, #76698d);
+  position: fixed;
+  margin: auto;
+  bottom: 25px;
+  left: 0;
+  right: 0;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Helvetica Neue";
+  font-weight: bolder;
+  cursor: pointer;
+  border-radius: 250px;
+  box-shadow: 0px 0px 15px #040404;
+  z-index: 999;
+  transition: 0.15s;
+  padding: 0;
+  border: none;
+}
+
+.custom-file-upload:hover {
+  background-image: linear-gradient(#5156ea, #76698d);
+  width: 400px;
+  font-size: 23px;
+  word-spacing: 2px;
+}
+/*#5156ea;*/
+#successprompt:hover {
+  background-image: linear-gradient(#5156ea, #76698d);
+  width: 350px;
+  height: 350px;
+  font-size: 30px;
 }
 
 #invertH {
@@ -160,11 +227,21 @@ span {
   border-radius: 10px;
   padding: 0;
   border: none;
-  box-shadow: 0px 0px 10px #343232;
+  box-shadow: 0px 0px 25px #040404;
   z-index: 999;
+  transition: all 0.2s;
 }
 
 canvas {
+  display: initial;
+  filter: brightness(25%) sepia(100) hue-rotate(222grad);
+  transition: all 0.2s;
+  z-index: 1;
+  border-radius: 25px;
+  box-shadow: 0px 0px 40px #040404;
+}
+
+#dark-canvas {
   display: none;
 }
 
@@ -172,20 +249,29 @@ canvas {
   position: fixed;
   text-align: left;
   font-family: "Helvetica Neue";
-  font-weight: bolder;
-  font-size: 27px;
+  font-weight: initial;
   margin-top: 0;
   padding-top: 0;
+  z-index: 99;
+
 }
 
 .heading h1 {
+  z-index: 99;
   margin-top: -5px;
+  font-size: 80px;
+  font-weight: bold;
+  text-shadow: 0px 0px 7px #191818;
 }
 
 .heading h2{
   position: relative;
   color: #abacac;
-  font-size: 20px;
+  font-size: 24px;
+  font-weight: inherit;
   padding-bottom: 0;
+  letter-spacing: 1px;
+  word-spacing: 1px;
   margin-bottom: 0;
+  text-shadow: 0px 0px 20px #000000;
 }
