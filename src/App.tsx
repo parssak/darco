@@ -17,7 +17,7 @@ async function invertImage(imageURL: string) {
       // @ts-ignore
       let ctx = canvas.getContext("2d");
       // @ts-ignore
-      ctx.filter = "invert(1) hue-rotate(90grad)";
+      // ctx.filter = "invert(1) hue-rotate(90grad)";
       // @ts-ignore
       canvas.width = img.width;
       // @ts-ignore
@@ -27,7 +27,7 @@ async function invertImage(imageURL: string) {
       // @ts-ignore
       if (typeof ctx.filter !== "undefined") {
         // @ts-ignore
-        ctx.filter = "invert(1) hue-rotate(180grad) contrast(160%)";
+        ctx.filter = "invert(1) hue-rotate(150grad)";
         // ctx.imageRendering = "pixelated";
         // @ts-ignore
         ctx.drawImage(img, 0, 0);
@@ -35,7 +35,7 @@ async function invertImage(imageURL: string) {
         // @ts-ignore
         ctx.drawImage(img, 0, 0);
         // @ts-ignore
-        ctx.filter = "invert(1) hue-rotate(180grad) contrast(160%)";
+        ctx.filter = "invert(1) hue-rotate(150grad)";
       }
       // @ts-ignore
       resolve(canvas.toDataURL(0.8));
@@ -47,7 +47,7 @@ async function invertImage(imageURL: string) {
 async function invertPdfPages(pdfDocument): Promise<Array<string>> {
   let imageArray = [];
   const rotate = 0;
-  const scale = 1;
+  const scale = 2;
 
   for (let i = 1; i <= pdfDocument.numPages; i++) {
     const canvasEl = document.createElement('canvas');
@@ -85,6 +85,17 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
   }
 
   return imageArray;
+}
+
+async function determineOrientaiton() {
+  let canvas = document.getElementById("preparecanvas");
+  // @ts-ignore
+  let width = canvas.width;
+  // @ts-ignore
+  let height = canvas.height;
+  if (height >= width) {
+    return 'p'
+  } else return 'l'
 }
 
 function imagesToPDF(imageArray: Array<string>, orientation: String) {
@@ -131,15 +142,17 @@ function PdfPreview(props) {
     workerSrc: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.2.228/pdf.worker.js"
   });
 
-
   return (
       <div>
         {/*{!pdfDocument &&<span>Loading...</span>}*/}
         {!pdfDocument ? <span>Preparing...</span> : <button className={"custom-file-upload"}
                                                           onClick={async () => {
+                                                            const orientation = await determineOrientaiton();
           const imageArray = await invertPdfPages(pdfDocument);
-          imagesToPDF(imageArray, 'p');
+          console.log("Thus the orientation is" + orientation);
+          imagesToPDF(imageArray, orientation);
         }}>Ready to invert!</button>}
+
 
         {
           pdfDocument && pdfDocument.numPages && <nav>
@@ -159,7 +172,7 @@ function PdfPreview(props) {
           </nav>
         }
         <div>
-          <canvas ref={canvasRef} />
+          <canvas ref={canvasRef} id={"preparecanvas"}/>
         </div>
         <div>
           <canvas id="dark-canvas"/>
@@ -170,12 +183,18 @@ function PdfPreview(props) {
 
 function App() {
   const [dataUrl, setDataUrl] = useState(null);
-  return (
-
+  const [page, setPage] = useState(1);
+  let canvasRef = useRef<HTMLCanvasElement | null>(null);;
+  let { pdfDocument, pdfPage } = usePdf({
+    file: "standardPDF.pdf",
+    page,
+    canvasRef,
+  });
+  return  (
       <div>
         <div className={"heading"}>
           <h2>Welcome to</h2>
-          <h1>Darco.</h1>
+          <h1>Darco</h1>
         </div>
         {dataUrl ? null : <input id="prompt"type="file"
                                  onChange={async (evt) => {
@@ -217,7 +236,9 @@ function App() {
                accept="application/pdf"
         />
         {dataUrl ? <PdfPreview dataUrl={dataUrl}/> : null}
+        {!dataUrl ? <canvas ref={canvasRef} id={"beginCanvas"} /> : null}
       </div>
+
   );
 }
 export default App;
