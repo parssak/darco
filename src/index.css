@@ -11,6 +11,10 @@ body {
   font-family: 'Inter';
   src: local('Inter'), url(./fonts/Inter-VariableFont_slnt,wght.ttf) format('truetype');}
 
+@font-face {
+  font-family: 'PierBold';
+  src: local('Pier-Sans-Bold'), url(./fonts/PierSansBold.otf) format('opentype');}
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

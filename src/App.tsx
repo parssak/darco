@@ -1,9 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import './App.css';
 import { usePdf } from '@mikecousins/react-pdf';
 import { jsPDF } from 'jspdf';
+import styled, { keyframes } from 'styled-components';
+import { bounce, pulse, fadeIn, tada } from 'react-animations';
+// import 'context-filter-polyfill';
 
 let pdfName = "";
+let originalBlob = "";
+const bounceAnimation = keyframes`${fadeIn}`;
+const BouncyDiv = styled.div`
+  animation: 0.5s ${bounceAnimation};
+  
+`;
 
 async function invertImage(imageURL: string) {
   return new Promise((resolve, reject) => {
@@ -33,13 +42,13 @@ async function invertImage(imageURL: string) {
         ctx.drawImage(img, 0, 0);
       } else {
         // @ts-ignore
-        ctx.drawImage(img, 0, 0);
-        // @ts-ignore
         ctx.filter = "invert(1) hue-rotate(150grad)";
+        // @ts-ignore
+        ctx.drawImage(img, 0, 0);
       }
 
       // @ts-ignore
-      resolve(canvas.toDataURL('image/jpeg', 0.8));
+      resolve(canvas.toDataURL('image/jpeg', 1));
     }
   })
 }
@@ -72,9 +81,7 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
       viewport,
     }).promise;
 
-
-    let dataURL = canvasEl.toDataURL();
-    let invertedURL = await invertImage(dataURL);
+    let invertedURL = await invertImage(canvasEl.toDataURL());
 
     console.log("page" + i + "this inverted URL is" + invertedURL);
     const darkImage = document.createElement("img");
@@ -88,7 +95,7 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
   return imageArray;
 }
 
-async function determineOrientaiton() {
+async function determineOrientation() {
   let canvas = document.getElementById("preparecanvas");
   // @ts-ignore
   let width = canvas.width;
@@ -99,33 +106,115 @@ async function determineOrientaiton() {
   } else return 'l'
 }
 
-function imagesToPDF(imageArray: Array<string>, orientation: String) {
-  // @ts-ignore
-  let doc = new jsPDF(orientation, 'mm');
-
-  for (let i = 0; i < imageArray.length; i++) {
-    if (i !== imageArray.length - 1) doc.addPage();
-
-    doc.setPage(i+1);
-    const imgData = imageArray[i];
-
-    const width = doc.internal.pageSize.getWidth();
-    const height = doc.internal.pageSize.getHeight();
-
-    doc.setFillColor('#000000');
-    doc.rect(0, 0, width, height);
+async function imagesToPDF(imageArray: Array<string>, orientation: String) {
+  return new Promise(resolve => {
     // @ts-ignore
-    doc.addImage(imgData, 0, 0, width, height);
-  }
+    let doc = new jsPDF(orientation, 'mm');
 
-  let documentName = pdfName.concat("dark");
-  doc.save(documentName.concat(".pdf"));
+    for (let i = 0; i < imageArray.length; i++) {
+      if (i !== imageArray.length - 1) doc.addPage();
+
+      doc.setPage(i+1);
+      const imgData = imageArray[i];
+
+      const width = doc.internal.pageSize.getWidth();
+      const height = doc.internal.pageSize.getHeight();
+
+      doc.setFillColor('#000000');
+      doc.rect(0, 0, width, height);
+      // @ts-ignore
+      doc.addImage(imgData, 0, 0, width, height);
+    }
+
+    let documentName = pdfName.concat("dark");
+
+    // @ts-ignore
+    if (window.webkit){
+      // @ts-ignore
+      window.webkit.messageHandlers.getDocumentName.postMessage(documentName.concat(".pdf"))
+    }
+
+    let fileReader = new FileReader()
+    let base64;
+    let blobPDF = new Blob([doc.output('blob')], {type : 'application/pdf'});
+    // var blobUrl = URL.createObjectURL(blobPDF);
+    // @ts-ignore
+    fileReader.readAsDataURL(blobPDF);
+    fileReader.onload = function(fileLoadedEvent) {
+      // @ts-ignore
+      base64 = fileLoadedEvent.target.result;
+      // console.log(base64.slice(28))
+      // console.log(base64.slice(28) == originalBlob)
+      // @ts-ignore
+      // window.location.replace(blobUrl)
+      resolve(base64);
+      // @ts-ignore
+        // @ts-ignore
+
+        // window.webkit.messageHandlers.openDocument.postMessage(base64)
+      }
+      // doc.save(documentName.concat(".pdf"));
+  });
 }
+
+// async function imagesToPDF(imageArray: Array<string>, orientation: String) {
+//   // @ts-ignore
+//   let doc = new jsPDF(orientation, 'mm');
+//
+//   for (let i = 0; i < imageArray.length; i++) {
+//     if (i !== imageArray.length - 1) doc.addPage();
+//
+//     doc.setPage(i+1);
+//     const imgData = imageArray[i];
+//
+//     const width = doc.internal.pageSize.getWidth();
+//     const height = doc.internal.pageSize.getHeight();
+//
+//     doc.setFillColor('#000000');
+//     doc.rect(0, 0, width, height);
+//     // @ts-ignore
+//     doc.addImage(imgData, 0, 0, width, height);
+//   }
+//
+//   let documentName = pdfName.concat("dark");
+//
+//   // @ts-ignore
+//   if (window.webkit){
+//     // @ts-ignore
+//     window.webkit.messageHandlers.getDocumentName.postMessage(documentName.concat(".pdf"))
+//   }
+//
+//   let fileReader = new FileReader()
+//   let base64;
+//   let blobPDF = new Blob([doc.output('blob')], {type : 'application/pdf'});
+//   // var blobUrl = URL.createObjectURL(blobPDF);
+//   // @ts-ignore
+//   fileReader.readAsDataURL(blobPDF);
+//   fileReader.onload = function(fileLoadedEvent) {
+//     // @ts-ignore
+//     base64 = fileLoadedEvent.target.result;
+//     // console.log(base64.slice(28))
+//     // console.log(base64.slice(28) == originalBlob)
+//     // @ts-ignore
+//     // window.location.replace(blobUrl)
+//
+//     // @ts-ignore
+//     if (window.webkit) {
+//       // @ts-ignore
+//       window.webkit.messageHandlers.openDocument.postMessage(base64)
+//     }
+//     // doc.save(documentName.concat(".pdf"));
+//   }
+// }
 
 function getDataUrlFromFile(file) {
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.addEventListener('load', function () {
+      // @ts-ignore
+      console.log("Result is:",reader.result.slice(28));
+      // @ts-ignore
+      originalBlob = reader.result.slice(28);
       resolve(reader.result);
     }, false);
     reader.readAsDataURL(file);
@@ -135,46 +224,67 @@ function getDataUrlFromFile(file) {
 function PdfPreview(props) {
   const [page, setPage] = useState(1);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [scale, setScale] = useState(1);
 
   let { pdfDocument, pdfPage } = usePdf({
     file: props.dataUrl,
     page,
     canvasRef,
-    workerSrc: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.2.228/pdf.worker.js"
+    workerSrc: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.2.228/pdf.worker.js",
+    scale: scale
   });
+
+
+  useEffect(() => {
+    if (pdfDocument !== undefined && canvasRef.current) {
+      // console.log(canvasRef.current.width);
+      if (canvasRef.current.width <= 350) {
+        // console.log("entered2");
+        setScale(1)
+      }
+    }
+
+  })
+
+  // if (pdfDocument !== undefined) {
+  //   ensureSize()
+  // }
 
   return (
       <div>
         {/*{!pdfDocument &&<span>Loading...</span>}*/}
-        {!pdfDocument ? <span>Preparing...</span> : <button className={"custom-file-upload"}
-                                                          onClick={async () => {
-                                                            const orientation = await determineOrientaiton();
-          const imageArray = await invertPdfPages(pdfDocument);
-          console.log("Thus the orientation is" + orientation);
-          imagesToPDF(imageArray, orientation);
-        }}>Ready to invert!</button>}
+        {/*<span>Preparing...</span>*/}
+        {!pdfDocument ? null : <button className={"custom-file-upload"}
+                                       onClick={async () => {
+                                         const orientation = await determineOrientation();
+                                         const imageArray = await invertPdfPages(pdfDocument);
+                                         const finalBase64 = await imagesToPDF(imageArray, orientation);
 
+                                         // @ts-ignore
+                                         if (window.webkit) {
+                                           // @ts-ignore
+                                           window.webkit.messageHandlers.openDocument.postMessage(finalBase64)
+                                         }
 
-        {
-          pdfDocument && pdfDocument.numPages && <nav>
-            {/*<button id="invertV" onClick={async () => {*/}
-            {/*  const imageArray = await invertPdfPages(pdfDocument);*/}
-            {/*  imagesToPDF(imageArray, 'p');*/}
-            {/*}}>*/}
-            {/*  Invert Portrait*/}
-            {/*</button>*/}
+                                       }}>Ready to convert!</button>}
 
-            {/*<button id="invertH"onClick={async () => {*/}
-            {/*  const imageArray = await invertPdfPages(pdfDocument);*/}
-            {/*  imagesToPDF(imageArray, 'l');*/}
-            {/*}}>*/}
-            {/*  Invert Landscape*/}
-            {/*</button>*/}
-          </nav>
-        }
-        <div>
+        {/*{!pdfDocument ? null : <button className={"custom-file-upload"}*/}
+        {/*                               id={"back-button"}*/}
+        {/*                               onClick={async () => {*/}
+        {/*                                 const orientation = await determineOrientation();*/}
+        {/*                                 const imageArray = await invertPdfPages(pdfDocument);*/}
+        {/*                                 const finalBase64 = await imagesToPDF(imageArray, orientation);*/}
+
+        {/*                                 // @ts-ignore*/}
+        {/*                                 if (window.webkit) {*/}
+        {/*                                   // @ts-ignore*/}
+        {/*                                   window.webkit.messageHandlers.openDocument.postMessage(finalBase64)*/}
+        {/*                                 }*/}
+
+        {/*                               }}>Go back</button>}*/}
+        <BouncyDiv><div>
           <canvas ref={canvasRef} id={"preparecanvas"}/>
-        </div>
+        </div></BouncyDiv>
         <div>
           <canvas id="dark-canvas"/>
         </div>
@@ -184,13 +294,16 @@ function PdfPreview(props) {
 
 function App() {
   const [dataUrl, setDataUrl] = useState(null);
-  const [page, setPage] = useState(1);
-  let canvasRef = useRef<HTMLCanvasElement | null>(null);;
-  let { pdfDocument, pdfPage } = usePdf({
-    file: "standardPDF.pdf",
-    page,
-    canvasRef,
-  });
+
+  // const [page, setPage] = useState(1);
+  // let canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // let { pdfDocument, pdfPage } = usePdf({
+  //   file: "/standardPDF.pdf",
+  //   page,
+  //   canvasRef,
+  // });
+
   return  (
       <div>
         <div className={"heading"}>
@@ -237,7 +350,30 @@ function App() {
                accept="application/pdf"
         />
         {dataUrl ? <PdfPreview dataUrl={dataUrl}/> : null}
-        {!dataUrl ? <canvas ref={canvasRef} id={"beginCanvas"} /> : null}
+        {/*{!dataUrl ? <canvas ref={canvasRef} id={"beginCanvas"} /> : null}*/}
+        {!dataUrl ? <BouncyDiv><div className={"introPage"}>
+          <h1 style={{
+            marginTop: 65,
+            marginLeft: 20
+          }}>Please <span>select</span> a PDF</h1>
+          <h1 style={{
+            marginTop: 160,
+            textAlign: "right",
+            marginLeft: 330,
+            marginRight: 20
+          }}>And we will<br/>convert it<br/> to a more</h1>
+          <span
+              style={{textAlign: "right",
+                marginTop: -20,
+                marginLeft: 312,
+                marginRight: 20}}
+              id={"eye-friendly"}>eye-friendly</span>
+          <h1 style={{
+            marginTop: 0,
+            textAlign: "right",
+            marginLeft: 343,
+            marginRight: 10}}>alternative</h1>
+        </div></BouncyDiv> : null}
       </div>
 
   );
