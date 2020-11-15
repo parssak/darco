@@ -91,26 +91,6 @@ input[type="file"] {
   font-size: 24px;
 }
 
-#loadingprompt {
-  color: #908da1;
-  height: 250px;
-  width: 250px;
-  background-color: #211d36;
-  position: fixed;
-  margin: auto;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bolder;
-  cursor: pointer;
-  z-index: 999;
-  border-radius: 150px;
-}
 /*background-color: #27ac5d;*/
 #successprompt {
   color: white;
@@ -133,6 +113,26 @@ input[type="file"] {
   z-index: 999;
   transition: 0.15s;
   border-width: 0;
+}
+#loadingprompt {
+  color: #908da1;
+  height: 250px;
+  width: 250px;
+  background-color: #211d36;
+  position: fixed;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bolder;
+  cursor: pointer;
+  z-index: 999;
+  border-radius: 150px;
 }
 
 #invertH:hover{
@@ -177,12 +177,11 @@ input[type="file"] {
   z-index: 999;
   transition: all 0.2s;
 }
-
 .custom-file-upload {
   color: white;
-  height: 100px;
-  width: 330px;
-  background-image: linear-gradient(#516dea, #8151ea);
+  background-image: linear-gradient(#516dea, #8870f5);
+  height: 80px;
+  width: 300px;
   position: fixed;
   margin: auto;
   bottom: 75px;
@@ -196,7 +195,7 @@ input[type="file"] {
   cursor: pointer;
   border-radius: 250px;
   box-shadow: 0px 0px 8px #392c5f;
-  z-index: 999;
+  z-index: 40;
   transition: 0.15s;
   padding: 0;
   border: none;
@@ -205,15 +204,14 @@ input[type="file"] {
 
 #back-button{
   color: white;
-  height: 60px;
-  width: 350px;
+  height: 80px;
+  width: 200px;
   background-image: linear-gradient(#ea9151, #ea6551);
   position: fixed;
   margin: auto;
-  bottom: 10px;
-  left: 0;
-  right: 0;
+  bottom: 75px;
   font-size: 26px;
+  margin-left: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -229,7 +227,7 @@ input[type="file"] {
 }
 
 #back-button:hover {
-  width: 400px;
+  width: 300px;
 }
 
 .custom-file-upload:hover {
@@ -280,12 +278,12 @@ input[type="file"] {
 
 #preparecanvas {
   display: initial;
-
+  /*background: chartreuse;*/
   /*filter: invert(1) hue-rotate(150grad);*/
   transition: all 0.2s;
-  z-index: 1;
+  z-index: 5;
   border-radius: 25px;
-  box-shadow: 0px 0px 40px #040404;
+  /*box-shadow: 0px 0px 40px #040404;*/
   -webkit-user-select: none;
 }
 
@@ -299,6 +297,7 @@ input[type="file"] {
 
 
 #dark-canvas {
+  background: springgreen;
   display: none;
 }
 
@@ -321,19 +320,58 @@ input[type="file"] {
   font-weight: initial;
   letter-spacing: 0px;
   margin-left: -4px;
-  /*text-shadow: 0px 0px 7px #191818;*/
+  color: #ffffff;
+  text-shadow: 0px 0px 7px #191818;
 }
 
 .heading h2{
   position: relative;
-  color: #abacac;
+  color: #9da4ab;
   font-size: 24px;
   font-weight: inherit;
   padding-bottom: 0;
   letter-spacing: 1px;
   word-spacing: 1px;
   margin-bottom: 0;
+  text-shadow: 0px 0px 2px #191818;
   /*text-shadow: 0px 0px 20px #000000;*/
+}
+
+.rightside {
+  position: absolute;
+  margin: auto;
+  right: 3%;
+  bottom: 3%;
+  z-index: 1;
+}
+
+#bragbox {
+  background: #0e0a37;
+  border-radius: 20px;
+  padding:15px;
+  justify-content: center;
+  filter: blur(100%);
+  opacity: 70%;
+  /*display: flex;*/
+  /*align-items: center;*/
+}
+.rightside p {
+  color: #a395d4;
+
+  line-height: 1.5em;
+  text-align: right;
+  background-blend-mode: multiply;
+  letter-spacing: -0.042em;
+  font-weight: 100;
+  font-style: normal;
+  font-size: 15px;
+  padding: 0;
+  margin: 0;
+
+}
+
+#highlight {
+  color: #bcc0ff;
 }
 
 .introPage {
@@ -370,4 +408,74 @@ input[type="file"] {
   font-size: 30px;
   position: initial;
   display: flex;
+}
+
+slidecontainer {
+  width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.slider {
+  width: 100%; /* Full-width */
+  height: 25px; /* Specified height */
+  background: #d3d3d3; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+  z-index: 999;
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #4CAF50; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #4CAF50; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.progress {
+
+  border-radius: 200px;
+  position: absolute;
+  align-content: center;
+  margin: auto;
+  /*left: 0;*/
+  /*right: 0;*/
+  /*top: 0;*/
+  /*bottom: 0;*/
+  /*height: 45px;*/
+  /*width: 300px;*/
+  z-index: 49;
+  height: 80px;
+  width: 330px;
+  /*position: fixed;*/
+  /*margin: auto;*/
+  bottom: 75px;
+  left: 0;
+  right: 0;
+}
+
+.progress-done {
+  background: linear-gradient(to left, #F2709C, #FF9472);
+  box-shadow: 0 3px 3px -5px #F2709C, 0 2px 5px #F2709C;
+  border-radius: 200px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 0;
+  opacity: 0;
+  transition: 1s ease 0.3s;
+  z-index: 50;
 }
