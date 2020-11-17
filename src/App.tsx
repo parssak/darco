@@ -209,7 +209,7 @@ async function imagesToPDF(imageArray: Array<string>, orientation: String) {
       doc.addImage(imgData, 0, 0, width, height);
     }
 
-    let documentName = pdfName.concat("dark");
+    let documentName = pdfName.concat("-better");
 
     // @ts-ignore
     if (window.webkit){
@@ -309,7 +309,8 @@ function App() {
   const [dataUrl, setDataUrl] = useState(null);
   const [quality, setQuality] = useState(true);
 
-  async function recieveDataFromSwift(fileURL) {
+  // @ts-ignore
+  window.recieveDataFromSwift = async (fileURL) => {
     pdfName = fileURL.substring(0, fileURL[0].name.lastIndexOf('.'));
     const newDataUrl = await getDataUrlFromFile(fileURL);
     // @ts-ignore
@@ -318,6 +319,21 @@ function App() {
     // @ts-ignore
     window.webkit.messageHandlers.jsError.postMessage("Hit this");
   }
+
+  // @ts-ignore
+  window.hello = () => {
+    // @ts-ignore
+    window.webkit.messageHandlers.jsError.postMessage("Hello errors");
+  }
+  // async function recieveDataFromSwift(fileURL) {
+  //   pdfName = fileURL.substring(0, fileURL[0].name.lastIndexOf('.'));
+  //   const newDataUrl = await getDataUrlFromFile(fileURL);
+  //   // @ts-ignore
+  //   setDataUrl(newDataUrl);
+  //
+  //   // @ts-ignore
+  //   window.webkit.messageHandlers.jsError.postMessage("Hit this");
+  // }
 
   return  (
       <div>
