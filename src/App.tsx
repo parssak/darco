@@ -3,12 +3,18 @@ import './App.css';
 import { usePdf } from '@mikecousins/react-pdf';
 import { jsPDF } from 'jspdf';
 import styled, { keyframes } from 'styled-components';
-import { pulse, fadeIn, tada } from 'react-animations';
+import { pulse, fadeIn } from 'react-animations';
+import "./Switch";
 
 let pdfName = "";
 let originalBlob = "";
 let rotateNumber = 0.5;
 let completionRatio = 0;
+let pdfQuality = 0.8;
+let fileURL = "";
+
+
+
 
 const bounceAnimation = keyframes`${fadeIn}`;
 const pulseAnimation = keyframes`${pulse}`;
@@ -19,27 +25,6 @@ const BouncyDiv = styled.div`
 const PulseDiv = styled.div`
   animation: 1s ${bounceAnimation};
 `;
-
-const Progress = ({done}) => {
-  const [style, setStyle] = React.useState({});
-
-  setTimeout(() => {
-    const newStyle = {
-      opacity: 1,
-      width: `${Math.floor(completionRatio)}%`,
-    }
-    setStyle(newStyle);
-  }, 500);
-
-  return (
-      <div className="progress">
-        <div className="progress-done" style={style}>
-          {Math.floor(completionRatio)}%
-        </div>
-      </div>
-  )
-}
-
 
 async function invertImage(imageURL: string) {
   return new Promise((resolve, reject) => {
@@ -146,7 +131,7 @@ async function invertImage(imageURL: string) {
 
       */
       // @ts-ignore
-      resolve(canvas.toDataURL('image/jpeg', 1));
+      resolve(canvas.toDataURL('image/jpeg', pdfQuality));
     }
   })
 }
@@ -162,7 +147,6 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
     const page = await pdfDocument.getPage(i);
 
     const rotation = rotate === 0 ? page.rotate : page.rotate + rotate;
-
     const dpRatio = window.devicePixelRatio;
     const adjustedScale = scale * dpRatio;
     const viewport = page.getViewport({ scale: adjustedScale, rotation });
@@ -182,6 +166,7 @@ async function invertPdfPages(pdfDocument): Promise<Array<string>> {
     let invertedURL = await invertImage(canvasEl.toDataURL());
 
     completionRatio = (i / pdfDocument.numPages) * 100;
+    console.log(completionRatio);
     const darkImage = document.createElement("img");
     // @ts-ignore
     darkImage.src = invertedURL;
@@ -266,7 +251,7 @@ function PdfPreview(props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [scale, setScale] = useState(1);
   const [click, setClick] = useState(false);
-
+  const [progress, setProgress] = useState(0);
   let { pdfDocument, pdfPage } = usePdf({
     file: props.dataUrl,
     page,
@@ -278,9 +263,7 @@ function PdfPreview(props) {
 
   useEffect(() => {
     if (pdfDocument !== undefined && canvasRef.current) {
-      // console.log(canvasRef.current.width);
       if (canvasRef.current.width <= 350) {
-        // console.log("entered2");
         setScale(1)
       }
     }
@@ -288,15 +271,12 @@ function PdfPreview(props) {
 
   return (
       <div>
-        {/*{!pdfDocument &&<span>Loading...</span>}*/}
-        {/*<span>Preparing...</span>*/}
         {!pdfDocument ? null : <button className={"custom-file-upload"}
                                        id={"readytoconvert"}
                                        onClick={async () => {
                                          setClick(true);
                                          const orientation = await determineOrientation();
                                          const imageArray = await invertPdfPages(pdfDocument);
-                                         // setClick(true);
                                          const finalBase64 = await imagesToPDF(imageArray, orientation);
 
                                          // @ts-ignore
@@ -305,16 +285,15 @@ function PdfPreview(props) {
                                            window.webkit.messageHandlers.openDocument.postMessage(finalBase64)
                                          }
 
-                                       }}>{!click ? "Ready to convert!" : "Converting..."}</button>}
+                                       }}>{click ? "Convert PDF" : "Converting..."}</button>}
 
-        {!pdfDocument ? null : <PulseDiv><button className={"custom-file-upload"}
-                                       id={"back-button"}
-                                       onClick={ () => {
-                                         props.onCancelClick();
-                                       }}>Go back</button></PulseDiv>}
+        {!pdfDocument ? null : <PulseDiv><button className={"heading"}
+                                                 id={"back-button"}
+                                                 onClick={ () => {
+                                                   props.onCancelClick();
+                                                 }}>Go back</button></PulseDiv>}
         <div>
-          {!click ? null : <Progress done="70"/>}
-
+          {progress != completionRatio ? setProgress(completionRatio) : null}
           <canvas ref={canvasRef} id={"preparecanvas"} />
         </div>
         <div>
@@ -324,29 +303,36 @@ function PdfPreview(props) {
   );
 }
 
+
+
 function App() {
   const [dataUrl, setDataUrl] = useState(null);
+  const [quality, setQuality] = useState(true);
 
-  // const [page, setPage] = useState(1);
-  // let canvasRef = useRef<HTMLCanvasElement | null>(null);
+  async function recieveDataFromSwift(fileURL) {
+    pdfName = fileURL.substring(0, fileURL[0].name.lastIndexOf('.'));
+    const newDataUrl = await getDataUrlFromFile(fileURL);
+    // @ts-ignore
+    setDataUrl(newDataUrl);
 
-  // let { pdfDocument, pdfPage } = usePdf({
-  //   file: "/standardPDF.pdf",
-  //   page,
-  //   canvasRef,
-  // });
-
-  let slider = document.getElementById("myRange");
-  let output = document.getElementById("demo");
-  // @ts-ignore
-
+    // @ts-ignore
+    window.webkit.messageHandlers.jsError.postMessage("Hit this");
+  }
 
   return  (
       <div>
-        <PulseDiv><div className={"heading"}>
+        <div className={"heading"}>
           <h2>Welcome to</h2>
           <h1>Darco</h1>
-        </div></PulseDiv>
+          <button className={"custom-file-upload"}
+                  id={"changeQuality"}
+                  onClick={ () => {
+
+                    setQuality(!quality)
+                    pdfQuality = quality ? 0.8 : 0.3;
+                    console.log(pdfQuality)
+                  }}>{quality ? "High Quality" : "Low Quality"}</button>
+        </div>
         {dataUrl ? null : <input id="prompt"type="file"
                                  onChange={async (evt) => {
                                    const files = evt.target.files;
@@ -366,7 +352,7 @@ function App() {
                                  accept="application/pdf"
         />}
         {dataUrl ? null : <label htmlFor="file-upload" className="custom-file-upload">
-          <i className="fa fa-cloud-upload"></i> Select PDF...
+          <i className="fa fa-cloud-upload"></i> Select PDF
         </label>}
         <input id="file-upload"type="file"
                onChange={async (evt) => {
@@ -391,8 +377,6 @@ function App() {
         }
 
         }/> : null}
-        {/*{!dataUrl ? <canvas ref={canvasRef} id={"beginCanvas"} /> : null}*/}
-
 
         {!dataUrl ? <BouncyDiv><div className={"introPage"}>
           <h1 style={{
@@ -417,20 +401,11 @@ function App() {
             marginLeft: 343,
             marginRight: 10}}>alternative</h1>
         </div></BouncyDiv> : null}
-        {/*{
-          <div className={"slidecontainer"}>
-            <input type="range" min="0" max="1" value="0.5" className="slider" id="myRange" onChange={() => {
-              // @ts-ignore
-              rotateNumber = this.valueOf();
-            }}/>
-            <p><span id="demo"></span></p>
+        <div className={"rightside"}>
+          <div id={"bragbox"}>
+            <p> An <span id={"highlight"}>open-source</span> project <br/>by  <span id={"highlight"}>Parssa Kyanzadeh</span> </p>
           </div>
-        }*/}
-      <div className={"rightside"}>
-        <div id={"bragbox"}>
-          <p> An <span id={"highlight"}>open-source</span> project <br/>by  <span id={"highlight"}>Parssa Kyanzadeh</span> </p>
         </div>
-      </div>
       </div>
 
   );
