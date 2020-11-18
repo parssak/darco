@@ -4,7 +4,6 @@ import { usePdf } from '@mikecousins/react-pdf';
 import { jsPDF } from 'jspdf';
 import styled, { keyframes } from 'styled-components';
 import { pulse, fadeIn } from 'react-animations';
-import "./Switch";
 
 let pdfName = "";
 let originalBlob = "";
@@ -13,17 +12,14 @@ let completionRatio = 0;
 let pdfQuality = 0.8;
 let fileURL = "";
 
-
-
-
-const bounceAnimation = keyframes`${fadeIn}`;
+const fadeInAnimation = keyframes`${fadeIn}`;
 const pulseAnimation = keyframes`${pulse}`;
-const BouncyDiv = styled.div`
+const PulseDiv = styled.div`
   animation: 0.5s ${pulseAnimation};
 `;
 
-const PulseDiv = styled.div`
-  animation: 1s ${bounceAnimation};
+const FadeDiv = styled.div`
+  animation: 1s ${fadeInAnimation};
 `;
 
 async function invertImage(imageURL: string) {
@@ -135,7 +131,6 @@ async function invertImage(imageURL: string) {
     }
   })
 }
-
 
 async function invertPdfPages(pdfDocument): Promise<Array<string>> {
   let imageArray = [];
@@ -287,11 +282,11 @@ function PdfPreview(props) {
 
                                        }}>{click ? "Convert PDF" : "Converting..."}</button>}
 
-        {!pdfDocument ? null : <PulseDiv><button className={"heading"}
+        {!pdfDocument ? null : <FadeDiv><button className={"heading"}
                                                  id={"back-button"}
                                                  onClick={ () => {
                                                    props.onCancelClick();
-                                                 }}>Go back</button></PulseDiv>}
+                                                 }}>Go back</button></FadeDiv>}
         <div>
           {progress != completionRatio ? setProgress(completionRatio) : null}
           <canvas ref={canvasRef} id={"preparecanvas"} />
@@ -302,8 +297,6 @@ function PdfPreview(props) {
       </div>
   );
 }
-
-
 
 function App() {
   const [dataUrl, setDataUrl] = useState(null);
@@ -394,7 +387,7 @@ function App() {
 
         }/> : null}
 
-        {!dataUrl ? <BouncyDiv><div className={"introPage"}>
+        {!dataUrl ? <PulseDiv><div className={"introPage"}>
           <h1 style={{
             marginTop: 65,
             marginLeft: 20
@@ -416,7 +409,7 @@ function App() {
             textAlign: "right",
             marginLeft: 343,
             marginRight: 10}}>alternative</h1>
-        </div></BouncyDiv> : null}
+        </div></PulseDiv> : null}
         <div className={"rightside"}>
           <div id={"bragbox"}>
             <p> An <span id={"highlight"}>open-source</span> project <br/>by  <span id={"highlight"}>Parssa Kyanzadeh</span> </p>

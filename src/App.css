@@ -13,10 +13,16 @@
   }
 }
 html, body {margin: 0; height: 100%; overflow: hidden}
+
+:root {
+  --background-color: #0e0a37;
+}
+
 html {
-  background-color: #0e0a37;
+  background-color: var(--background-color);
   color: white;
 }
+
 
 text {
   -webkit-touch-callout: none;
@@ -48,7 +54,7 @@ text {
 }
 
 body {
-  background-color: #0e0a37;
+  background-color: var(--background-color);;
   color: white;
   padding: 40px;
   text-align: center;
@@ -60,28 +66,6 @@ input[type="file"] {
   display: none;
 }
 
-/*span {*/
-/*  color: white;*/
-/*  height: 250px;*/
-/*  width: 250px;*/
-/*  background-color: #211d36;*/
-/*  position: fixed;*/
-/*  margin: auto;*/
-/*  top: 0;*/
-/*  bottom: 0;*/
-/*  left: 0;*/
-/*  right: 0;*/
-/*  font-size: 20px;*/
-/*  display: flex;*/
-/*  justify-content: center;*/
-/*  align-items: center;*/
-/*  font-family: "Helvetica Neue";*/
-/*  font-weight: bolder;*/
-/*  cursor: pointer;*/
-/*  z-index: 999;*/
-/*  border-radius: 150px;*/
-/*}*/
-
 #prompt:hover {
   height: 350px;
   width: 350px;
@@ -91,29 +75,6 @@ input[type="file"] {
   font-size: 24px;
 }
 
-/*background-color: #27ac5d;*/
-#successprompt {
-  color: white;
-  height: 150px;
-  width: 300px;
-  /*background-image: linear-gradient(#5156ea, #76698d);*/
-  position: fixed;
-  margin: auto;
-  bottom: 50px;
-  left: 0;
-  right: 0;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bolder;
-  cursor: pointer;
-  border-radius: 250px;
-  box-shadow: 0px 0px 15px #040404;
-  z-index: 999;
-  transition: 0.15s;
-  border-width: 0;
-}
 #loadingprompt {
   color: #908da1;
   height: 250px;
@@ -134,25 +95,6 @@ input[type="file"] {
   z-index: 999;
   border-radius: 150px;
 }
-
-#invertH:hover{
-  color: #ffffff;
-  background-image: none;
-  background-color: #5156ea;
-  width: 280px;
-  height: 70px;
-  font-size: 24px;
-}
-
-
-#invertV:hover{
-  color: #ffffff;
-  background-color: #5156ea;
-  width: 280px;
-  height: 70px;
-  font-size: 24px;
-}
-
 
 .custom-file-upload {
   color: white;
@@ -183,67 +125,11 @@ input[type="file"] {
   border: none;
   -webkit-user-select: none;
 }
-#invertV {
-  color: white;
-  height: 50px;
-  width: 250px;
-  background-color: #76698d;
-  position: fixed;
-  margin: auto;
-  bottom: 25px;
-  left: 0;
-  right: 280px;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bolder;
-  cursor: pointer;
-  border-radius: 23px;
-  padding: 0;
-  border: none;
-  box-shadow: 0px 0px 25px #040404;
-  z-index: 999;
-  transition: all 0.2s;
-}
-
-
 
 .custom-file-upload:hover {
   width: 400px;
   font-size: 28px;
   word-spacing: 2px;
-}
-
-#successprompt:hover {
-  background-image: linear-gradient(#5156ea, #76698d);
-  width: 350px;
-  height: 350px;
-  font-size: 30px;
-}
-
-#invertH {
-  color: white;
-  height: 50px;
-  width: 250px;
-  background-color: #76698d;
-  position: fixed;
-  margin: auto;
-  bottom: 25px;
-  left: 280px;
-  right: 0;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bolder;
-  cursor: pointer;
-  border-radius: 10px;
-  padding: 0;
-  border: none;
-  box-shadow: 0px 0px 25px #040404;
-  z-index: 999;
-  transition: all 0.2s;
 }
 
 #preparecanvas {
@@ -253,15 +139,6 @@ input[type="file"] {
   border-radius: 25px;
   -webkit-user-select: none;
 }
-
-#beginCanvas {
-  display: initial;
-  transition: all 0.2s;
-  z-index: 1;
-  border-radius: 25px;
-  box-shadow: 0px 0px 40px #040404;
-}
-
 
 #dark-canvas {
   background: springgreen;
@@ -314,7 +191,7 @@ input[type="file"] {
 }
 
 #bragbox {
-  background: #0e0a37;
+  background: var(--background-color);;
   border-radius: 20px;
   padding:15px;
   justify-content: center;
@@ -323,6 +200,7 @@ input[type="file"] {
   opacity: 70%;
   -webkit-user-select: none;
 }
+
 .rightside p {
   color: #a395d4;
 
@@ -383,41 +261,8 @@ input[type="file"] {
   -webkit-user-select: none;
 }
 
-slidecontainer {
-  width: 100%; /* Width of the outside container */
-}
-
-/* The slider itself */
-.slider {
-  width: 100%; /* Full-width */
-  height: 25px; /* Specified height */
-  background: #d3d3d3; /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-  transition: opacity .2s;
-  z-index: 999;
-}
-
-/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
-  appearance: none;
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #4CAF50; /* Green background */
-  cursor: pointer; /* Cursor on hover */
-}
-
-.slider::-moz-range-thumb {
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #4CAF50; /* Green background */
-  cursor: pointer; /* Cursor on hover */
-}
-
 .progress {
-  background: #0e0a37;
+  background: var(--background-color);;
   border-radius: 200px;
   position: absolute;
   align-content: center;
@@ -430,115 +275,6 @@ slidecontainer {
   -webkit-user-select: none;
   left: 0;
   right: 0;
-}
-
-.progress-text {
-  align-content: center;
-  z-index: 51;
-}
-
-.progress-done {
-  background: linear-gradient(to left, #F2709C, #FF9472);
-  box-shadow: 0 3px 3px -5px #F2709C, 0 2px 5px #F2709C;
-  border-radius: 200px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 0;
-  opacity: 0;
-  transition: 1s ease 0.3s;
-  z-index: 50;
-}
-
-#settings {
-  background: #dbf072;
-  width: 50%;
-  height: 50%;
-  position: center;
-  bottom: 0px;
-  left: 0;
-  right: 0;
-}
-
-#settings-button {
-  color: #c4c0ff;
-  background-image: linear-gradient(#17125b, #2c125b);
-  height: 120px;
-  width: 18%;
-  position: fixed;
-  margin: auto;
-  font-size: 26px;
-  -webkit-user-select: none;
-  /*display: flex;*/
-  /*justify-content: center;*/
-  /*align-items: center;*/
-  font-family: PierBold;
-  cursor: pointer;
-  border-radius: 25px;
-  bottom: 50%;
-  z-index: 40;
-  transition: 0.15s;
-  padding: 0;
-  border: none;
-  -webkit-user-select: none;
-  box-shadow: #0e0a37;
-}
-
-#settings-button:hover {
-  width: 19%;
-  font-size: 33px;
-  word-spacing: 2px;
-}
-
-#settingboxlabel {
-  position: fixed;
-  display: flex;
-  height: 60%;
-  bottom: 0;
-  vertical-align: auto;
-  boxSizing: border-box;
-  justifyContent: center;
-  zIndex:999;
-  fontSize: 25px;
-}
-
-#settings-box {
-  -webkit-user-select: none;
-
-
-  color: #c4c0ff;
-  background-image: linear-gradient(#17125b, #2c125b);
-  box-shadow: #0e0a37;
-  font-family: PierBold;
-  font-size: 26px;
-
-  margin: auto;
-  position: fixed;
-  padding: 0;
-
-  height: 80px;
-  width: 18%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  cursor: pointer;
-  border-radius: 25px;
-  bottom: 50%;
-  z-index: 40;
-  transition: 0.15s;
-
-  border: none;
-
-}
-
-#settings-box:hover {
-  width: 19%;
-  font-size: 33px;
-  word-spacing: 2px;
 }
 
 #back-button{
@@ -608,15 +344,4 @@ slidecontainer {
   width: 19%;
   font-size: 28px;
   word-spacing: 2px;
-}
-.loadingsection {
-  width: 200px;
-  margin: auto;
-  bottom: 50%;
-  left: 0;
-  right: 0;
-  vertical-align: auto;
-  position: fixed;
-  -webkit-user-select: none;
-  z-index: 0;
 }
