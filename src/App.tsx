@@ -12,6 +12,9 @@ let completionRatio = 0;
 let pdfQuality = 0.8;
 let fileURL = "";
 
+// @ts-ignore
+window.app = this;
+
 const fadeInAnimation = keyframes`${fadeIn}`;
 const pulseAnimation = keyframes`${pulse}`;
 const PulseDiv = styled.div`
@@ -230,6 +233,7 @@ async function imagesToPDF(imageArray: Array<string>, orientation: String) {
 }
 
 function getDataUrlFromFile(file) {
+  console.log(file)
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.addEventListener('load', function () {
@@ -264,29 +268,44 @@ function PdfPreview(props) {
     }
   })
 
+
+  // @ts-ignore
+  window.generateDark = async () => {
+    const orientation = await determineOrientation();
+    const imageArray = await invertPdfPages(pdfDocument);
+    const finalBase64 = await imagesToPDF(imageArray, orientation);
+
+    // @ts-ignore
+    if (window.webkit) {
+      // @ts-ignore
+      window.webkit.messageHandlers.openDocument.postMessage(finalBase64)
+    }
+  }
+
   return (
       <div>
-        {!pdfDocument ? null : <button className={"custom-file-upload"}
-                                       id={"readytoconvert"}
-                                       onClick={async () => {
-                                         setClick(true);
-                                         const orientation = await determineOrientation();
-                                         const imageArray = await invertPdfPages(pdfDocument);
-                                         const finalBase64 = await imagesToPDF(imageArray, orientation);
+        {!pdfDocument ? <button>{"There is no PDF"}</button>
+            : <button className={"custom-file-upload"}
+                      id={"readytoconvert"}
+                      onClick={async () => {
+                        setClick(true);
+                        const orientation = await determineOrientation();
+                        const imageArray = await invertPdfPages(pdfDocument);
+                        const finalBase64 = await imagesToPDF(imageArray, orientation);
 
-                                         // @ts-ignore
-                                         if (window.webkit) {
-                                           // @ts-ignore
-                                           window.webkit.messageHandlers.openDocument.postMessage(finalBase64)
-                                         }
+                        // @ts-ignore
+                        if (window.webkit) {
+                          // @ts-ignore
+                          window.webkit.messageHandlers.openDocument.postMessage(finalBase64)
+                        }
 
-                                       }}>{click ? "Convert PDF" : "Converting..."}</button>}
+                      }}>{click ? "Converting..."  : "Convert PDF"}</button>}
 
         {!pdfDocument ? null : <FadeDiv><button className={"heading"}
-                                                 id={"back-button"}
-                                                 onClick={ () => {
-                                                   props.onCancelClick();
-                                                 }}>Go back</button></FadeDiv>}
+                                                id={"back-button"}
+                                                onClick={ () => {
+                                                  props.onCancelClick();
+                                                }}>Go back</button></FadeDiv>}
         <div>
           {progress != completionRatio ? setProgress(completionRatio) : null}
           <canvas ref={canvasRef} id={"preparecanvas"} />
@@ -298,35 +317,60 @@ function PdfPreview(props) {
   );
 }
 
+function blobToDataURL(blob, callback) {
+  const a = new FileReader();
+  a.onload = function(e) {
+    // @ts-ignore
+    callback(e.target.result);
+    a.readAsDataURL(blob);
+  }
+}
+
+const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    // @ts-ignore
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, {type: contentType});
+  return blob;
+}
+
 function App() {
   const [dataUrl, setDataUrl] = useState(null);
   const [quality, setQuality] = useState(true);
+  const [base64Data, setBase64Data] = useState(null);
 
   // @ts-ignore
-  window.recieveDataFromSwift = async (fileURL) => {
-    pdfName = fileURL.substring(0, fileURL[0].name.lastIndexOf('.'));
-    const newDataUrl = await getDataUrlFromFile(fileURL);
+  window.recieveDataFromSwift = async (baseData, fileName) => {
+    pdfName = fileName;
     // @ts-ignore
-    setDataUrl(newDataUrl);
-
-    // @ts-ignore
-    window.webkit.messageHandlers.jsError.postMessage("Hit this");
+    window.webkit.messageHandlers.jsError.postMessage("Entered function");
+    setBase64Data(baseData);
   }
 
   // @ts-ignore
-  window.hello = () => {
-    // @ts-ignore
-    window.webkit.messageHandlers.jsError.postMessage("Hello errors");
-  }
-  // async function recieveDataFromSwift(fileURL) {
-  //   pdfName = fileURL.substring(0, fileURL[0].name.lastIndexOf('.'));
-  //   const newDataUrl = await getDataUrlFromFile(fileURL);
-  //   // @ts-ignore
-  //   setDataUrl(newDataUrl);
-  //
-  //   // @ts-ignore
-  //   window.webkit.messageHandlers.jsError.postMessage("Hit this");
-  // }
+  useEffect(async () => {
+    if (base64Data !== null && dataUrl == null) {
+      const blob = b64toBlob(base64Data, "application/pdf");
+      const blobUrl = URL.createObjectURL(blob);
+      // @ts-ignore
+      window.webkit.messageHandlers.jsError.postMessage(blobUrl.substr(0, blobUrl.length - 10));
+      // @ts-ignore
+      setDataUrl(blobUrl);
+    }
+  })
 
   return  (
       <div>
@@ -336,30 +380,10 @@ function App() {
           <button className={"custom-file-upload"}
                   id={"changeQuality"}
                   onClick={ () => {
-
                     setQuality(!quality)
-                    pdfQuality = quality ? 0.8 : 0.3;
-                    console.log(pdfQuality)
+                    pdfQuality = quality ? 0.3 : 0.8;
                   }}>{quality ? "High Quality" : "Low Quality"}</button>
         </div>
-        {dataUrl ? null : <input id="prompt"type="file"
-                                 onChange={async (evt) => {
-                                   const files = evt.target.files;
-
-                                   // @ts-ignore
-                                   if (files.length) {
-                                     // Picked a file.
-                                     // @ts-ignore
-                                     pdfName = files[0].name.substring(0, files[0].name.lastIndexOf('.'))
-
-                                     // @ts-ignore
-                                     const newDataUrl = await getDataUrlFromFile(files[0]);
-                                     // @ts-ignore
-                                     setDataUrl(newDataUrl);
-                                   }
-                                 }}
-                                 accept="application/pdf"
-        />}
         {dataUrl ? null : <label htmlFor="file-upload" className="custom-file-upload">
           <i className="fa fa-cloud-upload"></i> Select PDF
         </label>}
@@ -370,11 +394,16 @@ function App() {
                  // @ts-ignore
                  if (files.length) {
                    // Picked a file.
+
+                   if (files) {
+                     console.log(files[0]);
+                   }
                    // @ts-ignore
                    pdfName = files[0].name.substring(0, files[0].name.lastIndexOf('.'))
 
                    // @ts-ignore
                    const newDataUrl = await getDataUrlFromFile(files[0]);
+
                    // @ts-ignore
                    setDataUrl(newDataUrl);
                  }
@@ -383,9 +412,11 @@ function App() {
         />
         {dataUrl ? <PdfPreview dataUrl={dataUrl} onCancelClick={ () => {
           setDataUrl(null);
+          setBase64Data(null);
         }
 
         }/> : null}
+
 
         {!dataUrl ? <PulseDiv><div className={"introPage"}>
           <h1 style={{
@@ -416,7 +447,6 @@ function App() {
           </div>
         </div>
       </div>
-
   );
 }
 export default App;
