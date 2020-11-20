@@ -5,16 +5,31 @@ import { jsPDF } from 'jspdf';
 import styled, { keyframes } from 'styled-components';
 import { pulse, fadeIn } from 'react-animations';
 
-let pdfName = "";
-let originalBlob = "";
-let rotateNumber = 0.5;
-let completionRatio = 0;
-let pdfQuality = 0.8;
-let fileURL = "";
+/**
+ * @author Parssa Kyanzadeh
+ *
+ * Darco (Formerly called easyread) is an open-source
+ * project that aims to better the lives of students
+ * by allowing an easy way to convert any PDF into dark mode.
+ *
+ * Darco is still a work-in-progress with many features on the way!
+ *  1. Themes for converted PDFs.
+ *  2. A better PDF algorithm that utilizes PDFJS to smart convert
+ *     pdf data on render, allowing for cleaner and smaller sized pdfs.
+ *  3. Automation settings for easily converting pdfs on download.
+ *  4. A Firefox/Chrome plugin.
+ */
+
+let pdfName = ""; // Name of the PDF
+let originalBlob = ""; //
+let hueRotateAmount = 0.5; // The amount to hue-rotate the image
+let completionRatio = 0; // How close is the PDF to being complete
+let pdfQuality = 0.8; // Quality level of the PDF
 
 // @ts-ignore
 window.app = this;
 
+// Animation stuff
 const fadeInAnimation = keyframes`${fadeIn}`;
 const pulseAnimation = keyframes`${pulse}`;
 const PulseDiv = styled.div`
@@ -25,6 +40,10 @@ const FadeDiv = styled.div`
   animation: 1s ${fadeInAnimation};
 `;
 
+/**
+ *  Inverts and hue rotates image, and returns new dark image
+ * @param imageURL the toDataURL of the image
+ */
 async function invertImage(imageURL: string) {
   return new Promise((resolve, reject) => {
     let img = new Image();
@@ -32,12 +51,17 @@ async function invertImage(imageURL: string) {
     img.onload = draw;
     img.src = imageURL;
 
+    /**
+     *  Draws image onto canvas and inverts the image data.
+     *  Had to manually input the invert and hue rotate here
+     *  because webkit does not support canvas draw filters.
+     *
+     *  P.S. this canvas is hidden with CSS
+     */
     function draw() {
       let canvas = document.querySelector("#dark-canvas");
       // @ts-ignore
       let ctx = canvas.getContext("2d");
-      // @ts-ignore
-      // ctx.filter = "invert(1) hue-rotate(90grad)";
       // @ts-ignore
       canvas.width = img.width;
       // @ts-ignore
@@ -55,7 +79,7 @@ async function invertImage(imageURL: string) {
       }
 
 
-      const rotateAmount = rotateNumber;
+      const rotateAmount = hueRotateAmount;
       const h = (rotateAmount % 1 + 1) % 1; // wraps the angle to unit interval, even when negative
       const th = h * 3;
       const thr = Math.floor(th);
@@ -121,20 +145,26 @@ async function invertImage(imageURL: string) {
 
       ctx.putImageData(imageData, 0, 0);
 
-
+      // TODO check if not webview, and if not, do this instead.
       // filter
       /*
       // @ts-ignore
       ctx.filter = "invert(1) hue-rotate(150grad)";
       // @ts-ignore
-
       */
       // @ts-ignore
+
       resolve(canvas.toDataURL('image/jpeg', pdfQuality));
     }
   })
 }
 
+/**
+ *  Converts each page of the pdf into an image based
+ *  on the viewport and converts them into images
+ *  and then inverts + hue rotates them
+ * @param pdfDocument: pdfDocument to convert
+ */
 async function invertPdfPages(pdfDocument): Promise<Array<string>> {
   let imageArray = [];
   const rotate = 0;
@@ -187,6 +217,11 @@ async function determineOrientation() {
   } else return 'l'
 }
 
+/**
+ *  Takes all of the inverted images and returns them back into a pdf
+ * @param imageArray: array of inverted images
+ * @param orientation: 'p' for portrait, 'l' for landscape
+ */
 async function imagesToPDF(imageArray: Array<string>, orientation: String) {
   return new Promise(resolve => {
     // @ts-ignore
@@ -232,6 +267,10 @@ async function imagesToPDF(imageArray: Array<string>, orientation: String) {
   });
 }
 
+/**
+ *  Helper function that gets the dataURL from a File object
+ * @param file
+ */
 function getDataUrlFromFile(file) {
   console.log(file)
   return new Promise(resolve => {
@@ -317,6 +356,12 @@ function PdfPreview(props) {
   );
 }
 
+
+/**
+ *  Helper function that gets the dataURL from a Blob object
+ * @param blob: blob to convert
+ * @param callback: the dataURL
+ */
 function blobToDataURL(blob, callback) {
   const a = new FileReader();
   a.onload = function(e) {
@@ -381,7 +426,7 @@ function App() {
                   id={"changeQuality"}
                   onClick={ () => {
                     setQuality(!quality)
-                    pdfQuality = quality ? 0.3 : 0.8;
+                    pdfQuality = quality ? 0.2 : 0.6;
                   }}>{quality ? "High Quality" : "Low Quality"}</button>
         </div>
         {dataUrl ? null : <label htmlFor="file-upload" className="custom-file-upload">

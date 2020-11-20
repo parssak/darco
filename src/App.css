@@ -184,17 +184,19 @@ input[type="file"] {
 }
 
 .rightside {
-  position: absolute;
-  margin: auto;
-  right: 5%;
-  bottom: 7%;
+  position: relative;
   z-index: 999;
 }
 
 #bragbox {
   background: var(--background-color);;
-  border-radius: 20px;
-  padding:15px;
+
+  position: absolute;
+  bottom:0;
+  right:0;
+
+  border-radius: var(--button-border-radius);
+  padding:1em;
   justify-content: center;
   margin-bottom: 30px;
   filter: blur(100%);
