@@ -184,8 +184,12 @@ input[type="file"] {
 }
 
 .rightside {
-  position: relative;
+  position: fixed;
+  margin: auto;
+  bottom: 5%;
   z-index: 999;
+  right: 2%;
+  width: 20%;
 }
 
 #bragbox {
@@ -231,7 +235,7 @@ input[type="file"] {
   font-size: 20px;
   font-weight: bolder;
   border-radius: var(--button-border-radius);
-  background-color: black;
+  background-color: #000000;
   box-shadow: 0px 0px 15px #040404;
   padding: 10px;
   margin: auto auto 0px;

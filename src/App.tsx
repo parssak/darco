@@ -153,8 +153,9 @@ async function invertImage(imageURL: string) {
       // @ts-ignore
       */
       // @ts-ignore
-
       resolve(canvas.toDataURL('image/jpeg', pdfQuality));
+
+      // resolve(canvas.toDataURL('image/jpeg', pdfQuality));
     }
   })
 }
@@ -242,7 +243,9 @@ async function imagesToPDF(imageArray: Array<string>, orientation: String) {
       doc.addImage(imgData, 0, 0, width, height);
     }
 
-    let documentName = pdfName.concat("-better");
+    let documentName = pdfName;
+    // let documentName = pdfName.concat("-better");
+
 
     // @ts-ignore
     if (window.webkit){
@@ -278,6 +281,7 @@ function getDataUrlFromFile(file) {
     reader.addEventListener('load', function () {
       // @ts-ignore
       originalBlob = reader.result.slice(28);
+      console.log("Finito.");
       resolve(reader.result);
     }, false);
     reader.readAsDataURL(file);
@@ -288,8 +292,9 @@ function PdfPreview(props) {
   const [page, setPage] = useState(1);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [scale, setScale] = useState(1);
-  const [click, setClick] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [buttonText, setButtonText] = useState("Convert PDF");
+
   let { pdfDocument, pdfPage } = usePdf({
     file: props.dataUrl,
     page,
@@ -307,7 +312,6 @@ function PdfPreview(props) {
     }
   })
 
-
   // @ts-ignore
   window.generateDark = async () => {
     const orientation = await determineOrientation();
@@ -323,22 +327,24 @@ function PdfPreview(props) {
 
   return (
       <div>
-        {!pdfDocument ? <button>{"There is no PDF"}</button>
+        {!pdfDocument ? null
             : <button className={"custom-file-upload"}
                       id={"readytoconvert"}
                       onClick={async () => {
-                        setClick(true);
+                        setButtonText("Converting...");
                         const orientation = await determineOrientation();
                         const imageArray = await invertPdfPages(pdfDocument);
                         const finalBase64 = await imagesToPDF(imageArray, orientation);
-
+                        if (completionRatio == 100) {
+                          setButtonText("Converted!");
+                        }
                         // @ts-ignore
                         if (window.webkit) {
                           // @ts-ignore
                           window.webkit.messageHandlers.openDocument.postMessage(finalBase64)
                         }
 
-                      }}>{click ? "Converting..."  : "Convert PDF"}</button>}
+                      }}>{buttonText}</button>}
 
         {!pdfDocument ? null : <FadeDiv><button className={"heading"}
                                                 id={"back-button"}
@@ -426,7 +432,7 @@ function App() {
                   id={"changeQuality"}
                   onClick={ () => {
                     setQuality(!quality)
-                    pdfQuality = quality ? 0.2 : 0.6;
+                    pdfQuality = quality ? 0.3 : 0.8
                   }}>{quality ? "High Quality" : "Low Quality"}</button>
         </div>
         {dataUrl ? null : <label htmlFor="file-upload" className="custom-file-upload">
