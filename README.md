@@ -1,5 +1,3 @@
-# Getting Started with Create React App
-
 # Darco
 
 Darco is a TypeScript/React app that converts PDF's to dark mode using PDF.js
